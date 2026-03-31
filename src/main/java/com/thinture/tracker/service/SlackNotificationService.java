@@ -35,35 +35,31 @@ public class SlackNotificationService {
         StringBuilder sb = new StringBuilder();
         sb.append(":rocket: *New Push to GitHub!*\n");
         sb.append("──────────────────────────\n");
-        sb.append(String.format("*Author:* %s (%s)\n", author.getName(), author.getEmail()));
+        sb.append(String.format("*Author:* %s\n", author.getName()));
         sb.append(String.format("*Repository:* %s\n", author.getRepositoryName()));
         sb.append(String.format("*Branch:* %s\n", author.getBranch()));
         sb.append(String.format("*Total Commits:* %d\n", commits.size()));
         sb.append("──────────────────────────\n");
         sb.append("*Commits:*\n");
-
         for (CommitRecord commit : commits) {
             String shortId = commit.getCommitId().substring(0, Math.min(7, commit.getCommitId().length()));
-            sb.append(String.format("  • `%s` — %s\n", shortId, commit.getMessage()));
+            sb.append(String.format("  - %s: %s\n", shortId, commit.getMessage()));
         }
-
-        sb.append("──────────────────────────\n");
-        sb.append(String.format("_Pushed at: %s_", author.getPushedAt()));
-
         return sb.toString();
     }
 
     private void sendToSlack(String message) {
-        // Build JSON payload for Slack Incoming Webhook
         String jsonPayload = String.format("{\"text\": \"%s\"}",
-                message.replace("\"", "\\\"").replace("\n", "\\n"));
+                message.replace("\\", "\\\\")
+                       .replace("\"", "\\\"")
+                       .replace("\n", "\\n"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(slackWebhookUrl, request, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                slackWebhookUrl, request, String.class);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             log.info("Slack message delivered successfully");
