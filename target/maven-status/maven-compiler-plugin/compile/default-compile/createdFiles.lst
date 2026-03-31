@@ -1,0 +1,16 @@
+com\thinture\tracker\entity\CommitRecord.class
+com\thinture\tracker\controller\GitHubWebhookController.class
+com\thinture\tracker\service\SlackNotificationService.class
+com\thinture\tracker\dto\GitHubPushPayload.class
+com\thinture\tracker\dto\GitHubPushPayload$Repository.class
+com\thinture\tracker\entity\CommitRecord$CommitRecordBuilder.class
+com\thinture\tracker\entity\PushAuthor$PushAuthorBuilder.class
+com\thinture\tracker\repository\CommitRecordRepository.class
+com\thinture\tracker\repository\PushAuthorRepository.class
+com\thinture\tracker\dto\GitHubPushPayload$CommitAuthor.class
+com\thinture\tracker\GitHubSlackTrackerApplication.class
+com\thinture\tracker\dto\GitHubPushPayload$Commit.class
+com\thinture\tracker\entity\PushAuthor.class
+com\thinture\tracker\dto\GitHubPushPayload$Pusher.class
+com\thinture\tracker\config\SecurityConfig.class
+com\thinture\tracker\service\GitHubWebhookService.class
