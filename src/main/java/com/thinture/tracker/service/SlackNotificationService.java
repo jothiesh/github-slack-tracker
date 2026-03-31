@@ -16,7 +16,7 @@ public class SlackNotificationService {
     private static final Logger log = LoggerFactory.getLogger(SlackNotificationService.class);
 
     private static final String SLACK_WEBHOOK_URL =
-        "https://hooks.slack.com/services/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";
+    	    "https://hooks.slack.com/services/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";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
