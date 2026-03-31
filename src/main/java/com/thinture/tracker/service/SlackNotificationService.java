@@ -4,6 +4,7 @@ import com.thinture.tracker.entity.CommitRecord;
 import com.thinture.tracker.entity.PushAuthor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,8 +16,8 @@ public class SlackNotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(SlackNotificationService.class);
 
-    private static final String SLACK_WEBHOOK_URL =
-        "https://hooks.slack.com/services/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";
+    @Value("${slack.webhook.url}")
+    private String slackWebhookUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -26,10 +27,7 @@ public class SlackNotificationService {
             sendToSlack(message);
             log.info("Slack notification sent for push by: {}", author.getName());
         } catch (Exception e) {
-            log.error("Failed to send Slack notification: {}"
-            		+ ""
-            		+ ""
-            		+ "", e.getMessage(), e);
+            log.error("Failed to send Slack notification: {}", e.getMessage(), e);
         }
     }
 
@@ -61,7 +59,7 @@ public class SlackNotificationService {
         HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                SLACK_WEBHOOK_URL, request, String.class);
+                slackWebhookUrl, request, String.class);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             log.info("Slack message delivered successfully");
