@@ -16,7 +16,7 @@ public class SlackNotificationService {
     private static final Logger log = LoggerFactory.getLogger(SlackNotificationService.class);
 
     private static final String SLACK_WEBHOOK_URL =
-        "https://hooks.slack.com/services/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";
+        "https://hooks.slack.com/services/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";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -26,7 +26,10 @@ public class SlackNotificationService {
             sendToSlack(message);
             log.info("Slack notification sent for push by: {}", author.getName());
         } catch (Exception e) {
-            log.error("Failed to send Slack notification: {}", e.getMessage(), e);
+            log.error("Failed to send Slack notification: {}"
+            		+ ""
+            		+ ""
+            		+ "", e.getMessage(), e);
         }
     }
 
