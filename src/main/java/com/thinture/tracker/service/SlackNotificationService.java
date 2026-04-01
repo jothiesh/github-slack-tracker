@@ -4,10 +4,12 @@ import com.thinture.tracker.entity.CommitRecord;
 import com.thinture.tracker.entity.PushAuthor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -15,21 +17,42 @@ public class SlackNotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(SlackNotificationService.class);
 
-    private static final String SLACK_WEBHOOK_URL =
-    	    "https://hooks.slack.com/services/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";
+    @Value("${slack.webhook.url}")
+    private String slackWebhookUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private boolean webhookAlive = false;
+
+    @PostConstruct
+    public void checkWebhook() {
+        try {
+            String testPayload = "{\"text\":\"Webhook health check - app started\"}";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> request = new HttpEntity<>(testPayload, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(slackWebhookUrl, request, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                webhookAlive = true;
+                log.info("Slack webhook is ALIVE and working");
+            }
+        } catch (Exception e) {
+            webhookAlive = false;
+            log.error("Slack webhook is DEAD: {}. Go to Slack API and create a new webhook.", e.getMessage());
+        }
+    }
 
     public void sendPushNotification(PushAuthor author, List<CommitRecord> commits) {
+        if (!webhookAlive) {
+            log.warn("Skipping Slack notification - webhook is not alive. Update slack.webhook.url in application.properties");
+            return;
+        }
         try {
             String message = buildSlackMessage(author, commits);
             sendToSlack(message);
             log.info("Slack notification sent for push by: {}", author.getName());
         } catch (Exception e) {
-            log.error("Failed to send Slack notification: {}"
-            		+ ""
-            		+ ""
-            		+ "", e.getMessage(), e);
+            webhookAlive = false;
+            log.error("Failed to send Slack notification: {}. Webhook may be expired.", e.getMessage());
         }
     }
 
@@ -61,7 +84,7 @@ public class SlackNotificationService {
         HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                SLACK_WEBHOOK_URL, request, String.class);
+                slackWebhookUrl, request, String.class);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             log.info("Slack message delivered successfully");
